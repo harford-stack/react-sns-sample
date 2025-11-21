@@ -1,5 +1,5 @@
 import React from 'react';
-import { Drawer, List, ListItem, ListItemText, Typography, Toolbar, ListItemIcon } from '@mui/material';
+import { Drawer, List, ListItem, ListItemButton, ListItemText, Typography, Toolbar, ListItemIcon } from '@mui/material';
 import { Home, Add, AccountCircle } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 
@@ -21,24 +21,24 @@ function Menu() {
         SNS 메뉴
       </Typography>
       <List>
-        <ListItem button component={Link} to="/feed">
+        <ListItemButton component={Link} to="/feed">
           <ListItemIcon>
             <Home />
           </ListItemIcon>
           <ListItemText primary="피드" />
-        </ListItem>
-        <ListItem button component={Link} to="/register">
+        </ListItemButton>
+        <ListItemButton component={Link} to="/register">
           <ListItemIcon>
             <Add />
           </ListItemIcon>
           <ListItemText primary="등록" />
-        </ListItem>
-        <ListItem button component={Link} to="/mypage">
+        </ListItemButton>
+        <ListItemButton component={Link} to="/mypage">
           <ListItemIcon>
             <AccountCircle />
           </ListItemIcon>
           <ListItemText primary="마이페이지" />
-        </ListItem>
+        </ListItemButton>
       </List>
     </Drawer>
   );

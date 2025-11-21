@@ -8,10 +8,10 @@ function Join() {
   let userNameRef = useRef();
   let navigate = useNavigate();
 
-  const handleJoin = async () => { // async 함수로 선언하여 비동기 처리
-    const id = idRef.current.value;
-    const pwd = pwdRef.current.value;
-    const userName = userNameRef.current.value;
+  let handleJoin = async () => { // async 함수로 선언하여 비동기 처리
+    let id = idRef.current.value;
+    let pwd = pwdRef.current.value;
+    let userName = userNameRef.current.value;
 
     // 입력값 유효성 검사 (예시)
     if (!id || !pwd || !userName) {
@@ -26,7 +26,7 @@ function Join() {
     };
 
     try {
-      const response = await fetch("http://localhost:3010/user/join", {
+      let response = await fetch("http://localhost:3010/user/join", {
         method: "POST",
         headers: {
           "Content-type": "application/json"
@@ -35,11 +35,11 @@ function Join() {
       });
 
       if (!response.ok) { // HTTP 상태 코드가 2xx가 아닌 경우 에러 처리
-        const errorData = await response.json();
+        let errorData = await response.json();
         throw new Error(errorData.message || "회원가입 중 오류가 발생했습니다.");
       }
 
-      const data = await response.json(); // 응답 본문 파싱
+      let data = await response.json(); // 응답 본문 파싱
 
       alert("가입되었습니다.");
       console.log("회원가입 성공:", data);

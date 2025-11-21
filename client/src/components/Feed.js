@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Grid2,
   AppBar,
@@ -24,27 +24,28 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
-const mockFeeds = [
-  {
-    id: 1,
-    title: '게시물 1',
-    description: '이것은 게시물 1의 설명입니다.',
-    image: 'https://images.unsplash.com/photo-1551963831-b3b1ca40c98e',
-  },
-  {
-    id: 2,
-    title: '게시물 2',
-    description: '이것은 게시물 2의 설명입니다.',
-    image: 'https://images.unsplash.com/photo-1521747116042-5a810fda9664',
-  },
-  // 추가 피드 데이터
-];
-
 function Feed() {
   const [open, setOpen] = useState(false);
   const [selectedFeed, setSelectedFeed] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
+
+  let [feeds, setFeeds] = useState([]);
+
+  function fnFeeds() {
+      // 원래 아이디를 jwt 토큰에서 꺼내야함
+      let userId = "tyu";
+      fetch("http://localhost:3010/feed/" + userId)
+        .then(res => res.json())
+        .then(data => {
+          setFeeds(data.list);
+          console.log(data);
+        })
+    }
+  
+    useEffect(() => {
+      fnFeeds();
+    }, [])
 
   const handleClickOpen = (feed) => {
     setSelectedFeed(feed);
@@ -80,20 +81,20 @@ function Feed() {
 
       <Box mt={4}>
         <Grid2 container spacing={3}>
-          {mockFeeds.map((feed) => (
+          {feeds.map((feed) => (
             <Grid2 xs={12} sm={6} md={4} key={feed.id}>
               <Card>
                 <CardMedia
                   component="img"
                   height="200"
-                  image={feed.image}
-                  alt={feed.title}
+                  image={feed.imgPath}
+                  alt={feed.imgName}
                   onClick={() => handleClickOpen(feed)}
                   style={{ cursor: 'pointer' }}
                 />
                 <CardContent>
                   <Typography variant="body2" color="textSecondary">
-                    {feed.title}
+                    {feed.content}
                   </Typography>
                 </CardContent>
               </Card>
@@ -104,7 +105,8 @@ function Feed() {
 
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="lg"> {/* 모달 크기 조정 */}
         <DialogTitle>
-          {selectedFeed?.title}
+          {/* tilte이 들어가야할 곳 */}
+          {selectedFeed?.imgName}
           <IconButton
             edge="end"
             color="inherit"
@@ -117,11 +119,11 @@ function Feed() {
         </DialogTitle>
         <DialogContent sx={{ display: 'flex' }}>
           <Box sx={{ flex: 1 }}>
-            <Typography variant="body1">{selectedFeed?.description}</Typography>
-            {selectedFeed?.image && (
+            <Typography variant="body1">{selectedFeed?.content}</Typography>
+            {selectedFeed?.imgPath && (
               <img
-                src={selectedFeed.image}
-                alt={selectedFeed.title}
+                src={selectedFeed.imgPath}
+                alt={selectedFeed.imgName}
                 style={{ width: '100%', marginTop: '10px' }}
               />
             )}

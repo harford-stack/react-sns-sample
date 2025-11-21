@@ -11,6 +11,7 @@ const cors = require('cors')
 // const db = require("./db");
 
 const userRouter = require("./routes/user");
+const feedRouter = require("./routes/feed");
 
 const app = express()
 
@@ -22,6 +23,7 @@ app.use(express.json());
 
 // router 영역
 app.use("/user", userRouter);
+app.use("/feed", feedRouter);
 
 // 3000번 포트를 사용하겠다
 app.listen(3010, ()=>{
