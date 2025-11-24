@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   TextField,
   Button,
@@ -12,14 +12,65 @@ import {
   Avatar,
   IconButton,
 } from '@mui/material';
-import { PhotoCamera } from '@mui/icons-material';
+import { FormatListBulleted, PhotoCamera } from '@mui/icons-material';
+import { jwtDecode } from "jwt-decode";
 
 function Register() {
-  const [file, setFile] = React.useState(null);
+  const [files, setFile] = React.useState([]);
+  let contentRef = useRef();
 
   const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
+    setFile(event.target.files); // 첨부파일 여러개라면 files[0]
   };
+
+  function fnFeedAdd() {
+    if(files.length == 0) {
+      alert("이미지를 선택해주세요");
+      return;
+    }
+    const token = localStorage.getItem("token");
+    const decoded = jwtDecode(token);
+
+    let param = {
+      content : contentRef.current.value,
+      userId : decoded.userId
+    }
+
+    fetch("http://localhost:3010/feed", {
+      method : "POST",
+      headers : {
+        "Content-type" : "application/json"
+      },
+      body : JSON.stringify(param)
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+        alert("저장되었습니다");
+        // navigate("/product/list");
+        fnUploadFile(data.result[0].insertId);
+      })
+  }
+
+  const fnUploadFile = (feedId)=>{
+    const formData = new FormData();
+    for(let i=0; i<files.length; i++){
+      formData.append("file", files[i]); 
+    } 
+    formData.append("feedId", feedId);
+    fetch("http://localhost:3010/feed/upload", {
+      method: "POST",
+      body: formData
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+        // navigate("/feedList"); // 원하는 경로
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
 
   return (
     <Container maxWidth="sm">
@@ -46,6 +97,7 @@ function Register() {
 
         <TextField label="제목" variant="outlined" margin="normal" fullWidth />
         <TextField
+          inputRef={contentRef}
           label="내용"
           variant="outlined"
           margin="normal"
@@ -61,25 +113,26 @@ function Register() {
             id="file-upload"
             type="file"
             onChange={handleFileChange}
+            multiple // 첨부파일 여러개 가능하게 하는 옵션 백엔드의 array처럼
           />
           <label htmlFor="file-upload">
             <IconButton color="primary" component="span">
               <PhotoCamera />
             </IconButton>
           </label>
-          {file && (
+          {files.length > 0 && (
             <Avatar
               alt="첨부된 이미지"
-              src={URL.createObjectURL(file)}
+              src={URL.createObjectURL(files[0])}
               sx={{ width: 56, height: 56, marginLeft: 2 }}
             />
           )}
           <Typography variant="body1" sx={{ marginLeft: 2 }}>
-            {file ? file.name : '첨부할 파일 선택'}
+            {files.length > 0 ? files[0].name : '첨부할 파일 선택'}
           </Typography>
         </Box>
 
-        <Button variant="contained" color="primary" fullWidth style={{ marginTop: '20px' }}>
+        <Button onClick={fnFeedAdd} variant="contained" color="primary" fullWidth style={{ marginTop: '20px' }}>
           등록하기
         </Button>
       </Box>

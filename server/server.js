@@ -9,6 +9,7 @@
 const express = require('express')
 const cors = require('cors')
 // const db = require("./db");
+const path = require('path'); // uploads 폴더에 접근 가능하게 하기 위한 패키지
 
 const userRouter = require("./routes/user");
 const feedRouter = require("./routes/feed");
@@ -24,6 +25,8 @@ app.use(express.json());
 // router 영역
 app.use("/user", userRouter);
 app.use("/feed", feedRouter);
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // uploads 폴더에 접근 가능하게 허용하겠다라는 path 패키지를 만든 사람의 문법이라고 보면 됨
 
 // 3000번 포트를 사용하겠다
 app.listen(3010, ()=>{

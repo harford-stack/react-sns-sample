@@ -40,6 +40,9 @@ function Login() {
       // 여기에서 data.msg 와 data.result 를 사용합니다!
       if (data.result) { // 로그인이 성공했을 때 (data.result가 true)
         alert(data.msg); // 백엔드에서 받은 환영 메시지 사용
+        console.log(data);
+        localStorage.setItem("token", data.token); // localStorage는 브라우저가 가지는 저장 공간(브라우저가 닫히기 전까지)
+        console.log(data.token);
         console.log("로그인 성공:", data);
         navigate("/feed"); // 성공 시 feed 페이지로 이동
       } else { // 로그인이 실패했을 때 (data.result가 false, 즉 아이디/비번 불일치)

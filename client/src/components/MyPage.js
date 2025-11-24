@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, Box, Avatar, Grid, Paper } from '@mui/material';
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from 'react-router-dom';
 
 function MyPage() {
 
   let [user, setUser] = useState();
+  let navigate = useNavigate();
 
   function fnGetUser() {
-    // 원래 아이디를 jwt 토큰에서 꺼내야함
-    let id = "tyu";
-    fetch("http://localhost:3010/user/" + id)
+    // 아이디를 jwt 토큰에서 꺼내기
+    const token = localStorage.getItem("token");
+    if(token) {
+      const decoded = jwtDecode(token);
+      console.log("decoded ==> ", decoded);
+      fetch("http://localhost:3010/user/" + decoded.userId)
       .then(res => res.json())
       .then(data => {
         setUser(data.user);
       })
+    } else {
+      // 로그인 페이지로 이동
+      alert("로그인이 필요합니다");
+      navigate("/");
+    }
   }
 
   useEffect(() => {

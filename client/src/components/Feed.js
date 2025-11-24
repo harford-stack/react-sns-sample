@@ -23,6 +23,8 @@ import {
   Avatar,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from 'react-router-dom';
 
 function Feed() {
   const [open, setOpen] = useState(false);
@@ -31,21 +33,47 @@ function Feed() {
   const [newComment, setNewComment] = useState('');
 
   let [feeds, setFeeds] = useState([]);
+  let navigate = useNavigate();
 
   function fnFeeds() {
-      // 원래 아이디를 jwt 토큰에서 꺼내야함
-      let userId = "tyu";
-      fetch("http://localhost:3010/feed/" + userId)
-        .then(res => res.json())
-        .then(data => {
-          setFeeds(data.list);
-          console.log(data);
-        })
+    // 아이디를 jwt 토큰에서 꺼내기
+    const token = localStorage.getItem("token");
+    if(token) {
+      const decoded = jwtDecode(token);
+      console.log("decoded ==> ", decoded);
+      fetch("http://localhost:3010/feed/" + decoded.userId)
+      .then(res => res.json())
+      .then(data => {
+        setFeeds(data.list);
+        console.log("data , " , data);
+      })
+    } else {
+      // 로그인 페이지로 이동
+      alert("로그인이 필요합니다");
+      navigate("/");
     }
+  }
+
+  // function fnRemove(feedId) {
+  //   if(!window.confirm("삭제할거?")){
+  //       return;
+  //   }
+  //   fetch("http://localhost:3010/feed/" + feedId, {
+  //     method : "DELETE",
+  //     headers : {
+  //       "Authorization" : "Bearer " + localStorage.getItem("token") // 첫글자 대문자 및 공백 꼭 확인(문법)
+  //     }
+  //   })
+  //     .then( res => res.json() )
+  //     .then( data => {
+  //         console.log(data);
+  //         alert("삭제되었습니다.");
+  //     })
+  // }
   
-    useEffect(() => {
-      fnFeeds();
-    }, [])
+  useEffect(() => {
+    fnFeeds();
+  }, [])
 
   const handleClickOpen = (feed) => {
     setSelectedFeed(feed);
@@ -81,7 +109,7 @@ function Feed() {
 
       <Box mt={4}>
         <Grid2 container spacing={3}>
-          {feeds.map((feed) => (
+          {feeds.length > 0 ? feeds.map((feed) => (
             <Grid2 xs={12} sm={6} md={4} key={feed.id}>
               <Card>
                 <CardMedia
@@ -99,7 +127,7 @@ function Feed() {
                 </CardContent>
               </Card>
             </Grid2>
-          ))}
+          )) : "등록된 피드가 없습니다. 피드를 등록해보세요"}
         </Grid2>
       </Box>
 
@@ -127,6 +155,7 @@ function Feed() {
                 style={{ width: '100%', marginTop: '10px' }}
               />
             )}
+            {/* 첨부파일을 여러개 올리면 대표사진 하나만 올라가는게 아닌 사진 모두가 올라감(join했기 때문에) 그래서 spring처럼 썸네일 컬럼 만들어서 y/n 형식으로 대표이미지 하나만 나타나도록 하던가 */}
           </Box>
 
           <Box sx={{ width: '300px', marginLeft: '20px' }}>
@@ -159,6 +188,28 @@ function Feed() {
           </Box>
         </DialogContent>
         <DialogActions>
+          <Button onClick={() => {
+            console.log(selectedFeed);
+            // 삭제 요청하면서 selectedFeed.id를 보낸다
+            if(!window.confirm("삭제하시겠습니까?")){
+              return;
+            }
+            fetch("http://localhost:3010/feed/" + selectedFeed.id, {
+              method : "DELETE",
+              headers : {
+                "Authorization" : "Bearer " + localStorage.getItem("token") // 첫글자 대문자 및 공백 꼭 확인(문법)
+                // 토큰 확인이 필요하다면 썬더에서 주소 끝에 /feedId 번호 넣고 실행시켜보면 "인증 토큰 없음"이 뜨는 것을 확인가능함
+              }
+            })
+              .then( res => res.json() )
+              .then( data => {
+                  alert("삭제되었습니다.");
+                  setOpen(false);
+                  fnFeeds();
+              })
+          }} variant='contained' color="secondary">
+            삭제
+          </Button>
           <Button onClick={handleClose} color="primary">
             닫기
           </Button>
